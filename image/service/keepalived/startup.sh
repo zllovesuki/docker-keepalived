@@ -59,4 +59,8 @@ do
   ip addr del ${IP} dev ${IP_INTERFACE} || true
 done
 
+if [ ! -e "/usr/local/etc/keepalived/keepalived.conf" ]; then
+  ln -sf ${CONTAINER_SERVICE_DIR}/keepalived/assets/keepalived.conf /usr/local/etc/keepalived/keepalived.conf
+fi
+
 exit 0
