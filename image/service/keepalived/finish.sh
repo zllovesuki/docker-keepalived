@@ -23,4 +23,13 @@ do
   ip addr del ${IP} dev ${IP_INTERFACE} || true
 done
 
+# try to delete virtual ips (ipv6) from interface
+# TODO: don't hard code interface
+for vip in $(complex-bash-env iterate KEEPALIVED_VIRTUAL6_IPS)
+do
+  IP_V6=$(echo ${!vip} | awk '{print $1}')
+
+  ip addr del ${IP_V6} dev ${KEEPALIVED_INTERFACE} || true
+done
+
 exit 0

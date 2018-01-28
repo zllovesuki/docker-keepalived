@@ -37,6 +37,13 @@ if [ ! -e "$FIRST_START_DONE" ]; then
   done
   sed -i "/{{ KEEPALIVED_VIRTUAL_IPS }}/d" ${CONTAINER_SERVICE_DIR}/keepalived/assets/keepalived.conf
 
+  # virtual ips (ipv6)
+  for vip in $(complex-bash-env iterate KEEPALIVED_VIRTUAL6_IPS)
+  do
+    sed -i "s|{{ KEEPALIVED_VIRTUAL6_IPS }}|${!vip}\n    {{ KEEPALIVED_VIRTUAL6_IPS }}|g" ${CONTAINER_SERVICE_DIR}/keepalived/assets/keepalived.conf
+  done
+  sed -i "/{{ KEEPALIVED_VIRTUAL6_IPS }}/d" ${CONTAINER_SERVICE_DIR}/keepalived/assets/keepalived.conf
+
   touch $FIRST_START_DONE
 fi
 
@@ -57,6 +64,15 @@ do
   fi
 
   ip addr del ${IP} dev ${IP_INTERFACE} || true
+done
+
+# try to delete virtual ips (ipv6) from interface
+# TODO: don't hard code interface
+for vip in $(complex-bash-env iterate KEEPALIVED_VIRTUAL6_IPS)
+do
+  IP_V6=$(echo ${!vip} | awk '{print $1}')
+
+  ip addr del ${IP_V6} dev ${KEEPALIVED_INTERFACE} || true
 done
 
 if [ ! -e "/usr/local/etc/keepalived/keepalived.conf" ]; then
